@@ -1,0 +1,21 @@
+{
+  "customerName": "Софія",
+  "phone": "+380991234567",
+  "address": "Київ, вул. Хрещатик, 1",
+  "items": [
+    {
+      "name": "Відлуння Pro",
+      "price": 1960,
+      "isWireless": true
+    },
+    {
+      "wrappedComponent": {
+        "name": "Відлуння",
+        "price": 900,
+        "isWireless": false
+      },
+      "discountPercentage": 10
+    }
+  ],
+  "total": 2770
+}

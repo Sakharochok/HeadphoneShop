@@ -34,6 +34,10 @@ export class ShoppingCart implements IObservable {
         this.notifyObservers();
     }
 
+    public getItems(): ICatalogComponent[] {
+        return this.items;
+    }
+
     public getTotalPrice(): number {
         return this.items.reduce((total, item) => total + item.getPrice(), 0);
     }
