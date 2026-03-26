@@ -5,6 +5,8 @@ import { DiscountDecorator } from './core/patterns/structural/ProductDecorator';
 import { JsonFileAdapter } from './core/patterns/structural/StorageAdapter';
 import { OrderBuilder } from './core/patterns/creational/OrderBuilder';
 import { ShoppingCart } from './core/patterns/creational/ShoppingCartSingleton';
+import { AddToCartCommand } from './core/patterns/behavioral/Command';
+import { CatalogIterator } from './core/patterns/behavioral/Iterator';
 
 class CartUI implements IObserver {
     update(totalPrice: number, itemCount: number): void {
@@ -22,21 +24,33 @@ const headphone3 = new DiscountDecorator(new HeadphoneProduct("Відлуння"
 
 store.initStore([headphone1, headphone2, headphone3]);
 
-store.addToCart(headphone1);
-store.addToCart(headphone3);
+console.log("=== КАТАЛОГ (Ітератор) ===");
+const iterator = new CatalogIterator([headphone1, headphone2, headphone3]);
+while (iterator.hasNext()) {
+    const item = iterator.next();
+    if (item) console.log(`- ${item.getName()}`);
+}
 
+console.log("\n=== ДІЇ КОРИСТУВАЧА (Команда) ===");
 const cart = ShoppingCart.getInstance();
-const orderBuilder = new OrderBuilder();
+const command1 = new AddToCartCommand(cart, headphone1);
+const command2 = new AddToCartCommand(cart, headphone3);
 
+command1.execute();
+command2.execute();
+command2.undo(); 
+
+const orderBuilder = new OrderBuilder();
 const order = orderBuilder
     .setCustomer("Софія", "+380991234567")
     .setDeliveryAddress("Київ, вул. Хрещатик, 1")
     .setItems(cart.getItems(), cart.getTotalPrice())
     .build();
 
-console.log("\n=== СФОРМОВАНЕ ЗАМОВЛЕННЯ ===");
-console.log(order);
+console.log("\n=== СТАТУСИ ЗАМОВЛЕННЯ (Стан) ===");
+order.ship(); 
+order.pay(); 
+order.ship(); 
 
 const db = new JsonFileAdapter('./src/data/database.json');
 db.save(order);
-console.log("\n💾 Замовлення збережено у базу даних (database.json)!");

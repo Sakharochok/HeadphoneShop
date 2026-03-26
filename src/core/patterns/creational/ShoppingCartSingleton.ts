@@ -34,6 +34,14 @@ export class ShoppingCart implements IObservable {
         this.notifyObservers();
     }
 
+    public removeItem(item: ICatalogComponent): void {
+        const index = this.items.indexOf(item);
+        if (index > -1) {
+            this.items.splice(index, 1);
+            this.notifyObservers();
+        }
+    }
+
     public getItems(): ICatalogComponent[] {
         return this.items;
     }

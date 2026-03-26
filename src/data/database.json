@@ -7,15 +7,8 @@
       "name": "Відлуння Pro",
       "price": 1960,
       "isWireless": true
-    },
-    {
-      "wrappedComponent": {
-        "name": "Відлуння",
-        "price": 900,
-        "isWireless": false
-      },
-      "discountPercentage": 10
     }
   ],
-  "total": 2770
+  "total": 1960,
+  "state": {}
 }
