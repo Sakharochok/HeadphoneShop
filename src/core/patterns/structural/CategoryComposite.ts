@@ -3,11 +3,10 @@ import { ISortStrategy } from '../behavioral/SortStrategy';
 
 export class Category implements ICatalogComponent {
     private components: ICatalogComponent[] = [];
-    private sortStrategy?: ISortStrategy; // Поле для зберігання обраної стратегії
+    private sortStrategy?: ISortStrategy;
 
     constructor(private name: string) {}
 
-    // Метод, яким ми будемо перемикати сортування (той самий патерн Strategy)
     setSortStrategy(strategy: ISortStrategy): void {
         this.sortStrategy = strategy;
     }
@@ -31,10 +30,13 @@ export class Category implements ICatalogComponent {
         return this.components.reduce((sum, component) => sum + component.getPrice(), 0);
     }
 
+    getComponents(): ICatalogComponent[] {
+        return this.components;
+    }
+
     displayInfo(): void {
         console.log(`\n📁 Категорія: ${this.name}`);
         
-        // Якщо стратегія встановлена, сортуємо товари перед тим, як їх показати
         let itemsToDisplay = this.components;
         if (this.sortStrategy) {
             itemsToDisplay = this.sortStrategy.sort(this.components);
