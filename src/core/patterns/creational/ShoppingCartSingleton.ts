@@ -1,10 +1,11 @@
 import { ICatalogComponent } from '../../models/ICatalogComponent';
+import { IObservable, IObserver } from '../behavioral/Observer';
 
-export class ShoppingCart {
+export class ShoppingCart implements IObservable {
     private static instance: ShoppingCart;
     private items: ICatalogComponent[] = [];
+    private observers: IObserver[] = [];
 
-    // Приватний конструктор (особливість Singleton)
     private constructor() {}
 
     public static getInstance(): ShoppingCart {
@@ -14,9 +15,23 @@ export class ShoppingCart {
         return ShoppingCart.instance;
     }
 
+    public addObserver(observer: IObserver): void {
+        this.observers.push(observer);
+    }
+
+    public removeObserver(observer: IObserver): void {
+        this.observers = this.observers.filter(obs => obs !== observer);
+    }
+
+    public notifyObservers(): void {
+        const total = this.getTotalPrice();
+        const count = this.items.length;
+        this.observers.forEach(obs => obs.update(total, count));
+    }
+
     public addItem(item: ICatalogComponent): void {
         this.items.push(item);
-        console.log(`🛒 Додано в кошик: ${item.getName()}`);
+        this.notifyObservers();
     }
 
     public getTotalPrice(): number {

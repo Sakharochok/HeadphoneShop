@@ -1,24 +1,28 @@
 import { HeadphoneProduct } from './core/models/HeadphoneProduct';
-import { ShoppingCart } from './core/patterns/creational/ShoppingCartSingleton';
+import { StoreFacade } from './core/patterns/structural/StoreFacade';
+import { IObserver } from './core/patterns/behavioral/Observer';
 import { DiscountDecorator } from './core/patterns/structural/ProductDecorator';
 
-// 1. Створюємо звичайні товари
-const standardHeadphone = new HeadphoneProduct("Відлуння Pro", 2000, true);
-const basicHeadphone = new HeadphoneProduct("Відлуння", 1000, false);
+class CartUI implements IObserver {
+    update(totalPrice: number, itemCount: number): void {
+        console.log(`🔔 [UI Оновлено] Товарів: ${itemCount} | Сума: ${totalPrice} грн`);
+    }
+}
 
-// 2. Застосовуємо Декоратор (робимо знижку 15% на Відлуння Pro)
-const discountedHeadphone = new DiscountDecorator(standardHeadphone, 15);
-// Застосовуємо Декоратор (знижка 50% на базове Відлуння)
-const blackFridayHeadphone = new DiscountDecorator(basicHeadphone, 50);
+const store = new StoreFacade();
+const ui = new CartUI();
 
-console.log("=== КАТАЛОГ ТОВАРІВ ===");
-standardHeadphone.displayInfo();
-discountedHeadphone.displayInfo(); // Цей об'єкт поводиться як товар, але ціна вже інша!
-blackFridayHeadphone.displayInfo();
+store.subscribeToCart(ui);
 
-// 3. Додаємо в кошик товар зі знижкою
-const cart = ShoppingCart.getInstance();
-cart.addItem(standardHeadphone); // Додаємо за повну ціну
-cart.addItem(blackFridayHeadphone); // Додаємо зі знижкою
+const headphone1 = new HeadphoneProduct("Відлуння Pro", 1960, true);
+const headphone2 = new HeadphoneProduct("Відлуння Bass", 2600, true);
+const headphone3 = new DiscountDecorator(new HeadphoneProduct("Відлуння", 900, false), 10);
 
-cart.showCart();
+store.initStore([headphone1, headphone2, headphone3]);
+
+console.log("=== КАТАЛОГ МАГАЗИНУ ===");
+store.displayCatalog();
+
+console.log("\n=== ДІЇ КОРИСТУВАЧА ===");
+store.addToCart(headphone1);
+store.addToCart(headphone3);
