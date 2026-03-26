@@ -1,29 +1,24 @@
 import { HeadphoneProduct } from './core/models/HeadphoneProduct';
-import { Category } from './core/patterns/structural/CategoryComposite';
 import { ShoppingCart } from './core/patterns/creational/ShoppingCartSingleton';
-import { PriceAscendingStrategy, PriceDescendingStrategy } from './core/patterns/behavioral/SortStrategy';
+import { DiscountDecorator } from './core/patterns/structural/ProductDecorator';
 
-// 1. Створюємо товари з різними цінами
-const headphone1 = new HeadphoneProduct("Відлуння", 900, false);
-const headphone2 = new HeadphoneProduct("Відлуння Pro", 1960, true);
-const headphone3 = new HeadphoneProduct("Відлуння Bass", 2600, true);
-const headphone4 = new HeadphoneProduct("Відлуння Lite", 500, true);
+// 1. Створюємо звичайні товари
+const standardHeadphone = new HeadphoneProduct("Відлуння Pro", 2000, true);
+const basicHeadphone = new HeadphoneProduct("Відлуння", 1000, false);
 
-// 2. Створюємо категорію
-const wirelessCategory = new Category("Бездротові навушники");
-wirelessCategory.add(headphone2); // 1960
-wirelessCategory.add(headphone3); // 2600
-wirelessCategory.add(headphone4); // 500
+// 2. Застосовуємо Декоратор (робимо знижку 15% на Відлуння Pro)
+const discountedHeadphone = new DiscountDecorator(standardHeadphone, 15);
+// Застосовуємо Декоратор (знижка 50% на базове Відлуння)
+const blackFridayHeadphone = new DiscountDecorator(basicHeadphone, 50);
 
-console.log("=== ЗВИЧАЙНИЙ ВИВІД (як додали) ===");
-wirelessCategory.displayInfo();
+console.log("=== КАТАЛОГ ТОВАРІВ ===");
+standardHeadphone.displayInfo();
+discountedHeadphone.displayInfo(); // Цей об'єкт поводиться як товар, але ціна вже інша!
+blackFridayHeadphone.displayInfo();
 
-// 3. Застосовуємо Стратегію: Від дешевих до дорогих
-console.log("\n=== СОРТУВАННЯ: ВІД ДЕШЕВИХ ДО ДОРОГИХ ===");
-wirelessCategory.setSortStrategy(new PriceAscendingStrategy());
-wirelessCategory.displayInfo();
+// 3. Додаємо в кошик товар зі знижкою
+const cart = ShoppingCart.getInstance();
+cart.addItem(standardHeadphone); // Додаємо за повну ціну
+cart.addItem(blackFridayHeadphone); // Додаємо зі знижкою
 
-// 4. Змінюємо Стратегію на льоту: Від дорогих до дешевих
-console.log("\n=== СОРТУВАННЯ: ВІД ДОРОГИХ ДО ДЕШЕВИХ ===");
-wirelessCategory.setSortStrategy(new PriceDescendingStrategy());
-wirelessCategory.displayInfo();
+cart.showCart();
