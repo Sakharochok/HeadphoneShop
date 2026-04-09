@@ -24,9 +24,12 @@ export class ShoppingCart implements IObservable {
     }
 
     public notifyObservers(): void {
-        const total = this.getTotalPrice();
-        const count = this.items.length;
-        this.observers.forEach(obs => obs.update(total, count));
+        const data = {
+            totalPrice: this.getTotalPrice(),
+            itemCount: this.items.length,
+            items: [...this.items]
+        };
+        this.observers.forEach(obs => obs.update(data));
     }
 
     public addItem(item: ICatalogComponent): void {
@@ -48,16 +51,5 @@ export class ShoppingCart implements IObservable {
 
     public getTotalPrice(): number {
         return this.items.reduce((total, item) => total + item.getPrice(), 0);
-    }
-
-    public showCart(): void {
-        console.log("\n--- Ваш кошик ---");
-        if (this.items.length === 0) {
-            console.log("Кошик порожній.");
-            return;
-        }
-        this.items.forEach(item => console.log(`- ${item.getName()}: ${item.getPrice()} грн`));
-        console.log(`Загальна сума: ${this.getTotalPrice()} грн`);
-        console.log("-----------------\n");
     }
 }

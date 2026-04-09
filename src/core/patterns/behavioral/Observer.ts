@@ -1,5 +1,7 @@
+import { ICatalogComponent } from '../../models/ICatalogComponent';
+
 export interface IObserver {
-    update(totalPrice: number, itemCount: number): void;
+    update(cartData: { totalPrice: number, itemCount: number, items: ICatalogComponent[] }): void;
 }
 
 export interface IObservable {
