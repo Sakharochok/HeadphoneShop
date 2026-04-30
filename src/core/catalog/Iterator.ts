@@ -1,4 +1,4 @@
-import { ICatalogComponent } from '../../models/ICatalogComponent';
+import { ICatalogComponent } from "./ICatalogComponent";
 
 export interface IIterator<T> {
     hasNext(): boolean;
@@ -6,7 +6,7 @@ export interface IIterator<T> {
 }
 
 export class CatalogIterator implements IIterator<ICatalogComponent> {
-    private position: number = 0;
+    private position = 0;
 
     constructor(private collection: ICatalogComponent[]) {}
 

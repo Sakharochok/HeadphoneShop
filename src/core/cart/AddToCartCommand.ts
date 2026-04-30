@@ -1,5 +1,5 @@
-import { ShoppingCart } from '../creational/ShoppingCartSingleton';
-import { ICatalogComponent } from '../../models/ICatalogComponent';
+import { ShoppingCart } from "./ShoppingCart";
+import { ICatalogComponent } from "../catalog/ICatalogComponent";
 
 export interface ICommand {
     execute(): void;

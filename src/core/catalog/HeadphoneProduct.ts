@@ -1,4 +1,4 @@
-import { ICatalogComponent } from './ICatalogComponent';
+import { ICatalogComponent } from "./ICatalogComponent";
 
 export class HeadphoneProduct implements ICatalogComponent {
     constructor(
@@ -16,6 +16,10 @@ export class HeadphoneProduct implements ICatalogComponent {
     }
 
     displayInfo(): void {
-        console.log(`🎧 Товар: ${this.name} | Ціна: ${this.price} грн | Бездротові: ${this.isWireless ? 'Так' : 'Ні'}`);
+        console.log(
+            `Product: ${this.name} | Price: ${this.price} UAH | Wireless: ${
+                this.isWireless ? "Yes" : "No"
+            }`
+        );
     }
 }

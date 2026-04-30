@@ -1,14 +1,14 @@
 {
-  "customerName": "Софія",
-  "phone": "+380991234567",
-  "address": "Київ, вул. Хрещатик, 1",
+  "customerName": "Sofia",
+  "phone": "+3800000000",
+  "address": "Kyiv",
   "items": [
     {
-      "name": "Відлуння Pro",
-      "price": 1960,
+      "name": "Echo Pro",
+      "price": 2000,
       "isWireless": true
     }
   ],
-  "total": 1960,
+  "total": 2000,
   "state": {}
 }

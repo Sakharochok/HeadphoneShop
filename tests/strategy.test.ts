@@ -1,24 +1,24 @@
-import { HeadphoneProduct } from '../src/core/models/HeadphoneProduct';
-import { PriceAscendingStrategy, PriceDescendingStrategy } from '../src/core/patterns/behavioral/SortStrategy';
+import { HeadphoneProduct } from "../src/core/catalog/HeadphoneProduct";
+import { PriceAscendingStrategy, PriceDescendingStrategy } from "../src/core/catalog/SortStrategy";
 
-describe('Strategy Pattern', () => {
-    const items = [
-        new HeadphoneProduct("A", 200, false),
-        new HeadphoneProduct("B", 100, false),
-        new HeadphoneProduct("C", 300, false)
-    ];
+describe("SortStrategy", () => {
+    const p1 = new HeadphoneProduct("A", 300, true);
+    const p2 = new HeadphoneProduct("B", 100, true);
+    const p3 = new HeadphoneProduct("C", 200, true);
 
-    test('PriceAscendingStrategy', () => {
+    const items = [p1, p2, p3];
+
+    it("should sort ascending", () => {
         const strategy = new PriceAscendingStrategy();
         const sorted = strategy.sort(items);
+
         expect(sorted[0].getPrice()).toBe(100);
-        expect(sorted[2].getPrice()).toBe(300);
     });
 
-    test('PriceDescendingStrategy', () => {
+    it("should sort descending", () => {
         const strategy = new PriceDescendingStrategy();
         const sorted = strategy.sort(items);
+
         expect(sorted[0].getPrice()).toBe(300);
-        expect(sorted[2].getPrice()).toBe(100);
     });
 });

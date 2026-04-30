@@ -1,12 +1,12 @@
-import { ICatalogComponent } from '../../models/ICatalogComponent';
-import { IOrderState, IOrderContext, NewState } from '../behavioral/OrderState';
+import { ICatalogComponent } from "../catalog/ICatalogComponent";
+import { IOrderState, IOrderContext, NewState } from "./OrderState";
 
 export class Order implements IOrderContext {
-    public customerName: string = '';
-    public phone: string = '';
-    public address: string = '';
-    public items: ICatalogComponent[] = [];
-    public total: number = 0;
+    customerName = "";
+    phone = "";
+    address = "";
+    items: ICatalogComponent[] = [];
+    total = 0;
     private state: IOrderState;
 
     constructor() {

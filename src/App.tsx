@@ -1,20 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Headphones, Search, Bell, Heart, ShoppingCart as CartIcon, ChevronDown, LayoutGrid, ThumbsUp, Percent, Star, X, Package, ShieldCheck, CreditCard, Undo2, Menu, ChevronRight, CheckCircle2, Trash2, ArrowLeft } from 'lucide-react';
-import { StoreFacade } from './core/patterns/structural/StoreFacade';
-import { HeadphoneProduct } from './core/models/HeadphoneProduct';
-import { DiscountDecorator } from './core/patterns/structural/ProductDecorator';
-import { ShoppingCart } from './core/patterns/creational/ShoppingCartSingleton';
-import { IObserver } from './core/patterns/behavioral/Observer';
-import { AddToCartCommand } from './core/patterns/behavioral/Command';
-import { OrderBuilder } from './core/patterns/creational/OrderBuilder';
-import { PriceAscendingStrategy, PriceDescendingStrategy } from './core/patterns/behavioral/SortStrategy';
+import {
+    Headphones,
+    Search,
+    Bell,
+    Heart,
+    ShoppingCart as CartIcon,
+    ChevronDown,
+    ThumbsUp,
+    Percent,
+    Star,
+    X,
+    Menu,
+    ChevronRight,
+    CheckCircle2,
+    Trash2,
+    ArrowLeft,
+    Undo2
+} from 'lucide-react';
+
+import { StoreFacade } from './core/facade/StoreFacade';
+import { HeadphoneProduct } from './core/catalog/HeadphoneProduct';
+import { DiscountDecorator } from './core/catalog/ProductDecorator';
+import { ShoppingCart } from './core/cart/ShoppingCart';
+import { ICartObserver as IObserver } from './core/cart/CartObserver';
+import { AddToCartCommand } from './core/cart/AddToCartCommand';
+import { OrderBuilder } from './core/orders/OrderBuilder';
+import { PriceAscendingStrategy, PriceDescendingStrategy } from './core/catalog/SortStrategy';
 
 const store = new StoreFacade();
 const headphone1 = new HeadphoneProduct("Відлуння Pro", 1960, true);
 const headphone2 = new HeadphoneProduct("Відлуння Bass", 2600, true);
 const headphone3 = new DiscountDecorator(new HeadphoneProduct("Відлуння Lite", 900, false), 10);
 const headphone4 = new HeadphoneProduct("Відлуння New", 2000, true);
-store.initStore([headphone1, headphone2, headphone3, headphone4]);
+store.initCatalog([headphone1, headphone2, headphone3, headphone4]);
 
 const PRIMARY_COLOR = '#2563eb';
 const BACKGROUND_COLOR = '#ffffff';

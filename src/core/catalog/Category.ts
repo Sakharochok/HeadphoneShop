@@ -1,5 +1,5 @@
-import { ICatalogComponent } from '../../models/ICatalogComponent';
-import { ISortStrategy } from '../behavioral/SortStrategy';
+import { ICatalogComponent } from "./ICatalogComponent";
+import { ISortStrategy } from "./SortStrategy";
 
 export class Category implements ICatalogComponent {
     private components: ICatalogComponent[] = [];
@@ -27,7 +27,10 @@ export class Category implements ICatalogComponent {
     }
 
     getPrice(): number {
-        return this.components.reduce((sum, component) => sum + component.getPrice(), 0);
+        return this.components.reduce(
+            (sum, component) => sum + component.getPrice(),
+            0
+        );
     }
 
     getComponents(): ICatalogComponent[] {
@@ -35,15 +38,13 @@ export class Category implements ICatalogComponent {
     }
 
     displayInfo(): void {
-        console.log(`\n📁 Категорія: ${this.name}`);
-        
-        let itemsToDisplay = this.components;
+        let items = this.components;
+
         if (this.sortStrategy) {
-            itemsToDisplay = this.sortStrategy.sort(this.components);
-            console.log(`   [Застосовано фільтр сортування]`);
+            items = this.sortStrategy.sort(this.components);
         }
 
-        for (const component of itemsToDisplay) {
+        for (const component of items) {
             component.displayInfo();
         }
     }

@@ -1,56 +1,76 @@
-import { HeadphoneProduct } from './core/models/HeadphoneProduct';
-import { StoreFacade } from './core/patterns/structural/StoreFacade';
-import { IObserver } from './core/patterns/behavioral/Observer';
-import { DiscountDecorator } from './core/patterns/structural/ProductDecorator';
-import { JsonFileAdapter } from './core/patterns/structural/StorageAdapter';
-import { OrderBuilder } from './core/patterns/creational/OrderBuilder';
-import { ShoppingCart } from './core/patterns/creational/ShoppingCartSingleton';
-import { AddToCartCommand } from './core/patterns/behavioral/Command';
-import { CatalogIterator } from './core/patterns/behavioral/Iterator';
+import { HeadphoneProduct } from "./core/catalog/HeadphoneProduct";
+import { DiscountDecorator } from "./core/catalog/ProductDecorator";
+import { StoreFacade } from "./core/facade/StoreFacade";
+import { JsonFileStorage } from "./core/storage/StorageAdapter";
+import { Order } from "./core/orders/OrderBuilder";
+import { CatalogIterator } from "./core/catalog/Iterator";
+import { AddToCartCommand } from "./core/cart/AddToCartCommand";
+import { ShoppingCart, ICartObserver } from "./core/cart/ShoppingCart";
 
-class CartUI implements IObserver {
-    update(totalPrice: number, itemCount: number): void {
-        console.log(`🔔 [UI Оновлено] Товарів: ${itemCount} | Сума: ${totalPrice} грн`);
+class ConsoleCartUI implements ICartObserver {
+    update(data: { totalPrice: number; itemCount: number }): void {
+        console.log(
+            `Cart updated → items: ${data.itemCount}, total: ${data.totalPrice}`
+        );
     }
 }
 
-const store = new StoreFacade();
-const ui = new CartUI();
+const storage = new JsonFileStorage("./src/data/database.json");
+const store = new StoreFacade(storage);
+
+const ui = new ConsoleCartUI();
 store.subscribeToCart(ui);
 
-const headphone1 = new HeadphoneProduct("Відлуння Pro", 1960, true);
-const headphone2 = new HeadphoneProduct("Відлуння Bass", 2600, true);
-const headphone3 = new DiscountDecorator(new HeadphoneProduct("Відлуння", 900, false), 10);
+const p1 = new HeadphoneProduct("Echo Pro", 2000, true);
+const p2 = new HeadphoneProduct("Bass Boost", 3000, true);
+const p3 = new DiscountDecorator(
+    new HeadphoneProduct("Lite", 1000, false),
+    10
+);
 
-store.initStore([headphone1, headphone2, headphone3]);
+store.initCatalog([p1, p2, p3]);
 
-console.log("=== КАТАЛОГ (Ітератор) ===");
-const iterator = new CatalogIterator([headphone1, headphone2, headphone3]);
+const iterator = new CatalogIterator([p1, p2, p3]);
 while (iterator.hasNext()) {
     const item = iterator.next();
-    if (item) console.log(`- ${item.getName()}`);
+    if (item) {
+        console.log(item.getName());
+    }
 }
 
-console.log("\n=== ДІЇ КОРИСТУВАЧА (Команда) ===");
 const cart = ShoppingCart.getInstance();
-const command1 = new AddToCartCommand(cart, headphone1);
-const command2 = new AddToCartCommand(cart, headphone3);
 
-command1.execute();
-command2.execute();
-command2.undo(); 
+const cmd1 = new AddToCartCommand(cart, p1);
+const cmd2 = new AddToCartCommand(cart, p3);
 
-const orderBuilder = new OrderBuilder();
-const order = orderBuilder
-    .setCustomer("Софія", "+380991234567")
-    .setDeliveryAddress("Київ, вул. Хрещатик, 1")
-    .setItems(cart.getItems(), cart.getTotalPrice())
-    .build();
+cmd1.execute();
+cmd2.execute();
+cmd2.undo();
 
-console.log("\n=== СТАТУСИ ЗАМОВЛЕННЯ (Стан) ===");
-order.ship(); 
-order.pay(); 
-order.ship(); 
+const order: Order = store.createOrder(
+    "Sofia",
+    "+3800000000",
+    "Kyiv"
+);
 
-const db = new JsonFileAdapter('./src/data/database.json');
-db.save(order);
+order.pay();
+order.ship();
+
+store.saveOrder(order);
+
+import { ProductAnalytics } from "./core/analytics/ProductAnalytics";
+import { ParallelAnalytics } from "./core/analytics/ParallelAnalytics";
+
+const items = store.getCatalog().getComponents();
+
+console.time("sequential");
+const total1 = ProductAnalytics.totalPrice(items);
+console.timeEnd("sequential");
+
+console.time("parallel");
+ParallelAnalytics.totalPrice(items).then(total2 => {
+    console.timeEnd("parallel");
+
+    console.log("Sequential:", total1);
+    console.log("Parallel:", total2);
+});

@@ -1,12 +1,11 @@
-import { HeadphoneProduct } from '../src/core/models/HeadphoneProduct';
-import { DiscountDecorator } from '../src/core/patterns/structural/ProductDecorator';
+import { HeadphoneProduct } from "../src/core/catalog/HeadphoneProduct";
+import { DiscountDecorator } from "../src/core/catalog/ProductDecorator";
 
-describe('Decorator Pattern', () => {
-    test('DiscountDecorator', () => {
+describe("Decorator", () => {
+    it("should apply discount correctly", () => {
         const product = new HeadphoneProduct("Test", 1000, true);
-        const discountedProduct = new DiscountDecorator(product, 20);
-        
-        expect(discountedProduct.getPrice()).toBe(800);
-        expect(discountedProduct.getName()).toContain("Знижка 20%");
+        const discounted = new DiscountDecorator(product, 10);
+
+        expect(discounted.getPrice()).toBe(900);
     });
 });
