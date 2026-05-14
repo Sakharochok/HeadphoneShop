@@ -26,6 +26,9 @@ import { ICartObserver as IObserver } from './core/cart/CartObserver';
 import { AddToCartCommand } from './core/cart/AddToCartCommand';
 import { OrderBuilder } from './core/orders/OrderBuilder';
 import { PriceAscendingStrategy, PriceDescendingStrategy } from './core/catalog/SortStrategy';
+import { CustomerSimulator } from "./core/simulation/CustomerSimulator";
+import { SequentialSimulation } from "./core/simulation/SequentialSimulation";
+import { ParallelSimulation } from "./core/simulation/ParallelSimulation";
 
 const store = new StoreFacade();
 const headphone1 = new HeadphoneProduct("Відлуння Pro", 1960, true);
@@ -407,6 +410,13 @@ export default function App() {
     const [sortType, setSortType] = useState("");
     const [modalProduct, setModalProduct] = useState<any | null>(null);
     const [renderTrigger, setRenderTrigger] = useState(0);
+    const [customerCount, setCustomerCount] = useState(1000);
+    const [workerCount, setWorkerCount] = useState(4);
+
+    const [sequentialResult, setSequentialResult] = useState<any>(null);
+    const [parallelResult, setParallelResult] = useState<any>(null);
+
+    const [simulationRunning, setSimulationRunning] = useState(false);
 
     useEffect(() => {
         class ReactCartObserver implements IObserver {
@@ -414,8 +424,37 @@ export default function App() {
         }
         const observer = new ReactCartObserver();
         store.subscribeToCart(observer);
+
         return () => ShoppingCart.getInstance().removeObserver(observer);
     }, []);
+        const runSequentialSimulation = () => {
+    setSimulationRunning(true);
+
+    const simulator = new CustomerSimulator(
+    store.getCatalog().getComponents()
+    );
+    const simulation = new SequentialSimulation(simulator);
+    const result = simulation.run(customerCount);
+
+    setSequentialResult(result);
+    setSimulationRunning(false);
+    };
+
+    const runParallelSimulation = async () => {
+    setSimulationRunning(true);
+
+    const simulator = new CustomerSimulator(
+    store.getCatalog().getComponents()
+    );
+    const simulation =  new ParallelSimulation(simulator);
+    const result = await simulation.run(
+            customerCount,
+            workerCount
+        );
+
+    setParallelResult(result);
+    setSimulationRunning(false);
+    };
 
     const toggleLike = (product: any) => {
         if (likedItems.some(item => item.getName() === product.getName())) {
@@ -470,6 +509,215 @@ export default function App() {
                 <main style={{ flex: 1, minWidth: 0, paddingBottom: '60px' }}>
                     <Banner />
                     <ProductGrid products={displayedProducts} sortType={sortType} onSort={handleSort} onDetails={setModalProduct} activeMenu={activeMenu} onResetAll={handleResetAll} />
+                        <div
+                            style={{
+                                marginTop: '40px',
+                                background: 'white',
+                                borderRadius: '24px',
+                                padding: '30px',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.05)'
+                            }}
+                        >
+                            <h2
+                                style={{
+                                    fontSize: '28px',
+                                    fontWeight: 800,
+                                    marginBottom: '25px'
+                                }}
+                            >
+                                Simulation Center
+                            </h2>
+
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    gap: '20px',
+                                    flexWrap: 'wrap',
+                                    marginBottom: '25px'
+                                }}
+                            >
+                                <div>
+                                    <div
+                                        style={{
+                                            marginBottom: '8px',
+                                            fontWeight: 600
+                                        }}
+                                    >
+                                        Customers
+                                    </div>
+
+                                    <input
+                                        type="number"
+                                        value={customerCount}
+                                        onChange={(e) =>
+                                            setCustomerCount(Number(e.target.value))
+                                        }
+                                        style={{
+                                            padding: '12px',
+                                            borderRadius: '12px',
+                                            border: '1px solid #ddd',
+                                            width: '160px'
+                                        }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <div
+                                        style={{
+                                            marginBottom: '8px',
+                                            fontWeight: 600
+                                        }}
+                                    >
+                                        Workers
+                                    </div>
+
+                                    <input
+                                        type="number"
+                                        value={workerCount}
+                                        onChange={(e) =>
+                                            setWorkerCount(Number(e.target.value))
+                                        }
+                                        style={{
+                                            padding: '12px',
+                                            borderRadius: '12px',
+                                            border: '1px solid #ddd',
+                                            width: '160px'
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    gap: '15px',
+                                    marginBottom: '30px',
+                                    flexWrap: 'wrap'
+                                }}
+                            >
+                                <button
+                                    onClick={runSequentialSimulation}
+                                    disabled={simulationRunning}
+                                    style={{
+                                        background: '#2563eb',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '14px 24px',
+                                        borderRadius: '14px',
+                                        cursor: 'pointer',
+                                        fontWeight: 700
+                                    }}
+                                >
+                                    Run Sequential
+                                </button>
+
+                                <button
+                                    onClick={runParallelSimulation}
+                                    disabled={simulationRunning}
+                                    style={{
+                                        background: '#111',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '14px 24px',
+                                        borderRadius: '14px',
+                                        cursor: 'pointer',
+                                        fontWeight: 700
+                                    }}
+                                >
+                                    Run Parallel
+                                </button>
+                            </div>
+
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                                    gap: '20px'
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        background: '#f8fafc',
+                                        padding: '20px',
+                                        borderRadius: '18px'
+                                    }}
+                                >
+                                    <h3 style={{ marginBottom: '15px' }}>
+                                        Sequential
+                                    </h3>
+
+                                    <p>
+                                        Time:
+                                        {' '}
+                                        {sequentialResult?.executionTime || 0}
+                                        ms
+                                    </p>
+
+                                    <p>
+                                        Orders:
+                                        {' '}
+                                        {sequentialResult?.totalOrders || 0}
+                                    </p>
+
+                                    <p>
+                                        Revenue:
+                                        {' '}
+                                        {sequentialResult?.totalRevenue || 0}
+                                        грн
+                                    </p>
+                                    <p>
+                                        Popular:
+                                        {sequentialResult?.mostPopularProduct || '-'}
+                                    </p>
+
+                                    <p>
+                                        Avg cart:
+                                        {sequentialResult?.averageCartValue?.toFixed(2) || '0.00'}
+                                    </p>
+                                </div>
+
+                                <div
+                                    style={{
+                                        background: '#f8fafc',
+                                        padding: '20px',
+                                        borderRadius: '18px'
+                                    }}
+                                >
+                                    <h3 style={{ marginBottom: '15px' }}>
+                                        Parallel
+                                    </h3>
+
+                                    <p>
+                                        Time:
+                                        {' '}
+                                        {parallelResult?.executionTime || 0}
+                                        ms
+                                    </p>
+
+                                    <p>
+                                        Orders:
+                                        {' '}
+                                        {parallelResult?.totalOrders || 0}
+                                    </p>
+
+                                    <p>
+                                        Revenue:
+                                        {' '}
+                                        {parallelResult?.totalRevenue || 0}
+                                        грн
+                                    </p>
+                                    <p>
+                                        Popular:
+                                        {parallelResult?.mostPopularProduct || '-'}
+                                    </p>
+
+                                    <p>
+                                        Avg cart:
+                                        {parallelResult?.averageCartValue?.toFixed(2) || '0.00'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                 </main>
             </div>
             
